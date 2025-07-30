@@ -1,31 +1,44 @@
+/* Body and Background */
 body {
   font-family: Arial, sans-serif;
-  background-color: #f0f4f8;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  background: 
+    linear-gradient(to bottom, rgba(0, 0, 0, 0) 50%, #f0f4f8 50%), 
+    url('../images/background.png') top center no-repeat;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
 }
 
+/* Container */
 .container {
-  background-color: #ffffff;
+  background-color: #fff;
   border-radius: 10px;
   padding: 30px;
-  box-shadow: 0 0 15px rgba(0, 56, 101, 0.2);
-  width: 350px;
+  margin: 40px auto 20px;
+  max-width: 650px;  /* Increased width to fit buttons */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
+/* Logo */
 .logo {
   width: 180px;
   height: auto;
   margin-bottom: 20px;
 }
 
+/* Headings */
 h2 {
   color: #003865;
 }
 
+/* Form Elements */
 form {
   display: flex;
   flex-direction: column;
@@ -44,6 +57,7 @@ input {
   border-radius: 5px;
 }
 
+/* Buttons */
 button {
   background-color: #0072CE;
   color: white;
@@ -52,13 +66,94 @@ button {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  min-width: 140px; /* Uniform width */
 }
 
 button:hover {
   background-color: #005fa3;
 }
 
+/* Button row - flex container for buttons */
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px; /* Spacing between buttons */
+}
+
+/* Links */
 a {
   color: #0072CE;
   text-decoration: none;
+}
+
+/* Footer */
+.custom-footer {
+  background-color: #0099CC; /* CPUT dark blue */
+  color: white;
+  width: 100%;
+  padding: 30px 0;
+  position: relative;
+  bottom: 0;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.footer-section {
+  flex: 1;
+  min-width: 250px;
+  margin: 10px;
+}
+
+.footer-section h4 {
+  margin-bottom: 10px;
+  text-decoration: underline;
+}
+
+.footer-logo {
+  width: 100px;
+  margin-bottom: 10px;
+}
+
+/* Icons */
+.icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* Social Icons */
+.social-icons a {
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* Footer icons and text */
+.footer-icons i {
+  color: white;
+  margin-right: 10px;
+}
+
+.footer-icons p {
+  margin: 5px 0;
+  color: white;
+  font-size: 14px;
+}
+
+/* Footer list items */
+.footer-section ul li {
+  margin-bottom: 4px;
+  line-height: 1.4;
 }

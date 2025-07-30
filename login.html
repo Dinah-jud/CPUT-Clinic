@@ -9,16 +9,27 @@
   <div class="container">
     <img src="images/cput-logo.png" alt="CPUT Logo" class="logo">
     <h2>CPUT Clinic Login</h2>
-    <form>
-      <label for="email">Email:</label>
-      <input type="email" id="email" required>
+    
+    <!-- Login form starts here -->
+    <form action="login.php" method="POST">
+  <label for="email">Email:</label>
+  <input type="email" id="email" name="email" required>
 
-      <label for="password">Password:</label>
-      <input type="password" id="password" required>
+  <label for="password">Password:</label>
+  <input type="password" id="password" name="password" required>
 
-      <button type="submit">Login</button>
-      <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
-    </form>
+  <button type="submit">Login</button>
+  <p>Don't have an account? <a href="signup.html">Sign up here</a></p>
+</form>
   </div>
+
+  <script>
+    const loginForm = document.getElementById('loginForm');
+    loginForm.addEventListener('submit', function(e) {
+      e.preventDefault();  // Prevent actual form submission
+      // You can add validation here if needed
+      window.location.href = 'dashboard.html'; // Redirect to dashboard
+    });
+  </script>
 </body>
 </html>
