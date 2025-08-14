@@ -26,7 +26,7 @@ if ($result->num_rows == 1) {
     session_start();
     $_SESSION['student'] = $row;
 
-    // ✅ Redirect to the dashboard in same folder
+    // Redirect to the dashboard in same folder
     header("Location: dashboard.html");
     exit();
   } else {

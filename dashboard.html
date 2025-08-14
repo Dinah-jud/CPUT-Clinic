@@ -29,7 +29,7 @@
     }
 
     .logo {
-      width: 120px; /* Made slightly bigger */
+      width: 120px; 
       margin-bottom: 20px;
     }
 
@@ -38,6 +38,25 @@
       padding: 12px 20px;
       font-size: 16px;
       cursor: pointer;
+    }
+
+    .profile-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin: 20px auto;   
+      width: fit-content;
+    }
+    .profile-link a {
+      text-decoration: none;
+      color: #003865;
+      font-weight: bold;
+    }
+    .profile-link img {
+      width: 22px;
+      height: 22px;
+    
     }
 
     footer {
@@ -101,7 +120,10 @@
   </div>
 </div>
 
-<p><a href="profile.php">My Profile</a></p>
+  <div class="profile-link">
+    <img src="images/ic_profile.svg" alt="Profile Icon">
+    <a href="profile.php">My Profile</a>
+  </div>
 
 
 <footer class="custom-footer">
