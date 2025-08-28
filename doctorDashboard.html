@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Global Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Header Styles */
+        .header {
+            background-color: #003865;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #0072CE;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Main Content Layout */
+        .container {
+            display: flex;
+            min-height: calc(100vh - 70px);
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background-color: white;
+            padding: 1.5rem 0;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-item {
+            padding: 1rem 2rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: #e8f4fc;
+            border-left: 4px solid #0072CE;
+        }
+
+        .nav-item i {
+            margin-right: 10px;
+            color: #0072CE;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 30px;
+            padding: 0.5rem 1rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        .search-container input {
+            border: none;
+            outline: none;
+            flex: 1;
+            padding: 0.5rem;
+        }
+
+        /* Patient List Styles */
+        .patient-list {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .patient-list-header {
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .patient-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .patient-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .patient-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .patient-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: #0072CE;
+            font-weight: bold;
+        }
+
+        .patient-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .patient-name {
+            font-weight: bold;
+        }
+
+        .patient-id {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .patient-actions button {
+            background-color: #0072CE;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .patient-actions button:hover {
+            background-color: #005fa3;
+        }
+
+        /* Medical History Styles */
+        .medical-history {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+        }
+
+        .medical-history-header {
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-item {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .history-date {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-bottom: 0.5rem;
+        }
+
+        .history-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .detail-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-label {
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        /* Form Styles */
+        .update-form {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #0072CE;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #005fa3;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        /* Back Button */
+        .back-button {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-button:hover {
+            background-color: #5a6268;
+        }
+
+        /* Footer Styles */
+        .custom-footer {
+            background-color: #012773;
+            color: white;
+            padding: 30px 0;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .footer-section {
+            flex: 1;
+            min-width: 250px;
+            margin: 10px;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 10px;
+            text-decoration: underline;
+        }
+
+        .footer-logo {
+            width: 100px;
+            margin-bottom: 10px;
+        }
+
+        .icon {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .social-icons a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .footer-icons p {
+            margin: 5px 0;
+            color: white;
+            font-size: 14px;
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+<!-- Header -->
+<header class="header">
+    <div class="logo-container">
+        <img src="images/cput-logo.png" alt="CPUT Logo" class="logo">
+        <div class="header-title">CPUT Clinic - Doctor Dashboard</div>
+    </div>
+    <div class="user-info">
+        <div class="user-avatar">DR</div>
+        <div>Dr. NN Dlamini</div>
+    </div>
+</header>
+
+<!-- Main Container -->
+<div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="nav-item active">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-user-injured"></i>
+            <span>Patients</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-calendar-check"></i>
+            <span>Appointments</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-file-medical"></i>
+            <span>Medical Records</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-prescription"></i>
+            <span>Prescriptions</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+        </div>
+        <div class="nav-item" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <button class="back-button" onclick="goBack()">
+            <i class="fas fa-arrow-left"></i> Back to Patient Dashboard
+        </button>
+
+        <div class="dashboard-header">
+            <h1>Patient Management</h1>
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search patients..." id="searchInput">
+            </div>
+        </div>
+
+        <!-- Patient List -->
+        <section class="patient-list">
+            <div class="patient-list-header">
+                <h2>Recent Patients</h2>
+                <span id="patient-count">5 patients</span>
+            </div>
+            <div id="patients-container">
+                <!-- Patient items will be dynamically inserted here -->
+            </div>
+        </section>
+
+        <!-- Medical History Section -->
+        <section class="medical-history">
+            <div class="medical-history-header">
+                <h2>Medical History - <span id="selected-patient">Select a patient to view details</span></h2>
+                <button class="btn btn-primary" onclick="toggleUpdateForm()" id="update-record-btn" disabled>Update Records</button>
+            </div>
+
+            <div id="medical-history-container">
+                <p>Please select a patient to view their medical history.</p>
+            </div>
+        </section>
+
+        <!-- Update Medical Records Form (Initially Hidden) -->
+        <section class="update-form" id="update-form" style="display: none;">
+            <h2>Update Medical Record for <span id="form-patient-name"></span></h2>
+            <form id="medical-record-form">
+                <div class="form-group">
+                    <label for="visit-date">Visit Date</label>
+                    <input type="date" id="visit-date" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="diagnosis">Diagnosis</label>
+                    <input type="text" id="diagnosis" placeholder="Enter diagnosis" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="treatment">Treatment</label>
+                    <textarea id="treatment" placeholder="Describe treatment provided" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="medication">Medication Prescribed</label>
+                    <input type="text" id="medication" placeholder="Enter medications">
+                </div>
+
+                <div class="form-group">
+                    <label for="follow-up">Follow-up Instructions</label>
+                    <textarea id="follow-up" placeholder="Enter follow-up instructions"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="toggleUpdateForm()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+
+<!-- Footer -->
+<footer class="custom-footer">
+    <div class="footer-content">
+        <div class="footer-section">
+            <img src="images/clinic-logo.jpg" alt="Clinic Logo" class="footer-logo">
+            <p><img src="images/email-icon.png" class="icon" alt="Email Icon"> info@cput.ac.za</p>
+            <div class="social-icons">
+                <a href="#" target="_blank">
+                    <img src="images/facebook-icon.png" class="icon" alt="Facebook Icon"> Facebook Page
+                </a>
+            </div>
+        </div>
+
+        <div class="footer-section">
+            <h4>Clinic Contact Details</h4>
+            <ul>
+                <li><img src="images/phone-icon.png" class="icon" alt="Phone Icon"> Bellville: +27 21 959 6403</li>
+                <li><img src="images/phone-icon.png" class="icon" alt="Phone Icon"> Cape Town (D6): +27 21 460 3405</li>
+                <li><img src="images/phone-icon.png" class="icon" alt="Phone Icon"> Mowbray: +27 21 680 1555</li>
+                <li><img src="images/phone-icon.png" class="icon" alt="Phone Icon"> Wellington: +27 21 864 5522</li>
+            </ul>
+        </div>
+
+        <div class="footer-section">
+            <h4>Group EZ2</h4>
+            <ul>
+                <li>Yvvonne Mthiyane – 222530723</li>
+                <li>Anwill Jacobs – 219423202</li>
+                <li>Judina Malefu Moleko – 221630597</li>
+                <li>Nothile Cele – 230894356</li>
+                <li>Njabulo Nicco Mathabela – 212061208</li>
+                <li>Thabiso Kama – 218017421</li>
+            </ul>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // Sample patient data
+    const patients = [
+        {
+            name: "John Doe",
+            id: "ST12345",
+            history: [
+                {
+                    date: "2023-10-15",
+                    diagnosis: "Upper respiratory infection",
+                    treatment: "Antibiotics, rest",
+                    medication: "Amoxicillin 500mg",
+                    followUp: "2 weeks"
+                },
+                {
+                    date: "2023-08-22",
+                    diagnosis: "Annual physical examination",
+                    treatment: "Routine checkup",
+                    medication: "None",
+                    followUp: "1 year"
+                }
+            ]
+        },
+        {
+            name: "Jabu hlogwane",
+            id: "780212020103",
+            history: [
+                {
+                    date: "2023-09-30",
+                    diagnosis: "flu",
+                    treatment: "Antibiotics, rest",
+                    medication: "Ibuprofen 400mg",
+                    followUp: "2 weeks"
+                }
+            ]
+        },
+        {
+            name: "Robert Ndlovu",
+            id: "850515030201",
+            history: [
+                {
+                    date: "2023-10-05",
+                    diagnosis: "Hypertension follow-up",
+                    treatment: "Medication adjustment",
+                    medication: "Lisinopril 10mg",
+                    followUp: "1 month"
+                }
+            ]
+        },
+        {
+            name: "Emma Madonsela",
+            id: "9102418010203",
+            history: [
+                {
+                    date: "2023-10-12",
+                    diagnosis: "Allergic reaction",
+                    treatment: "Antihistamines, steroid cream",
+                    medication: "Cetirizine 10mg, Hydrocortisone 1%",
+                    followUp: "1 week"
+                }
+            ]
+        },
+        {
+            name: "Michael Brown",
+            id: "95022512345",
+            history: [
+                {
+                    date: "2023-10-18",
+                    diagnosis: "Annual physical examination",
+                    treatment: "Routine checkup, blood tests",
+                    medication: "None",
+                    followUp: "1 year"
+                }
+            ]
+        }
+    ];
+
+    let selectedPatientIndex = -1;
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+        renderPatients();
+        setupSearch();
+    });
+
+    // Render patient list
+    function renderPatients(filteredPatients = patients) {
+        const container = document.getElementById('patients-container');
+        const countElement = document.getElementById('patient-count');
+
+        container.innerHTML = '';
+        countElement.textContent = `${filteredPatients.length} patients`;
+        // countElement.textContent = ${filteredPatients.length} patients;
+
+        if (filteredPatients.length === 0) {
+            container.innerHTML = '<div class="patient-item"><div class="patient-info">No patients found</div></div>';
+            return;
+        }
+
+        filteredPatients.forEach((patient, index) => {
+            const patientElement = document.createElement('div');
+            patientElement.className = 'patient-item';
+            patientElement.innerHTML = `
+          <div class="patient-info">
+            <div class="patient-avatar">${patient.name.split(' ').map(n => n[0]).join('')}</div>
+            <div class="patient-details">
+              <div class="patient-name">${patient.name}</div>
+              <div class="patient-id">ID: ${patient.id}</div>
+            </div>
+          </div>
+          <div class="patient-actions">
+            <button onclick="selectPatient(${index})">View Details</button>
+          </div>
+        `;
+            container.appendChild(patientElement);
+        });
+    }
+
+    // Set up search functionality
+    function setupSearch() {
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const filteredPatients = patients.filter(patient =>
+                patient.name.toLowerCase().includes(searchTerm) ||
+                patient.id.toLowerCase().includes(searchTerm)
+            );
+            renderPatients(filteredPatients);
+        });
+    }
+
+    // Function to select a patient and display their medical history
+    function selectPatient(index) {
+        selectedPatientIndex = index;
+        const patient = patients[index];
+        document.getElementById('selected-patient').textContent = patient.name;
+        document.getElementById('update-record-btn').disabled = false;
+        document.getElementById('form-patient-name').textContent = patient.name;
+
+        renderMedicalHistory(patient);
+    }
+
+    // Render medical history for selected patient
+    function renderMedicalHistory(patient) {
+        const container = document.getElementById('medical-history-container');
+
+        if (!patient.history || patient.history.length === 0) {
+            container.innerHTML = '<p>No medical history available for this patient.</p>';
+            return;
+        }
+
+        // Sort history by date (newest first)
+        const sortedHistory = [...patient.history].sort((a, b) =>
+            new Date(b.date) - new Date(a.date)
+        );
+
+        container.innerHTML = sortedHistory.map(record => `
+        <div class="history-item">
+          <div class="history-date">${formatDate(record.date)}</div>
+          <div class="history-details">
+            <div class="detail-item">
+              <span class="detail-label">Diagnosis:</span>
+              <span>${record.diagnosis}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Treatment:</span>
+              <span>${record.treatment}</span>
+            </div>
+            ${record.medication ? `
+            <div class="detail-item">
+              <span class="detail-label">Medication:</span>
+              <span>${record.medication}</span>
+            </div>
+            ` : ''}
+            ${record.followUp ? `
+            <div class="detail-item">
+              <span class="detail-label">Follow-up:</span>
+              <span>${record.followUp}</span>
+            </div>
+            ` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Format date for display
+    function formatDate(dateString) {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString(undefined, options);
+    }
+
+    // Function to toggle the update form visibility
+    function toggleUpdateForm() {
+        const form = document.getElementById('update-form');
+        if (form.style.display === 'none') {
+            // Pre-fill form with today's date
+            document.getElementById('visit-date').valueAsDate = new Date();
+            form.style.display = 'block';
+        } else {
+            form.style.display = 'none';
+        }
+    }
+
+    // Handle form submission
+    document.getElementById('medical-record-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        if (selectedPatientIndex === -1) {
+            alert('Please select a patient first.');
+            return;
+        }
+
+        const newRecord = {
+            date: document.getElementById('visit-date').value,
+            diagnosis: document.getElementById('diagnosis').value,
+            treatment: document.getElementById('treatment').value,
+            medication: document.getElementById('medication').value,
+            followUp: document.getElementById('follow-up').value
+        };
+
+        // Add the new record to the patient's history
+        patients[selectedPatientIndex].history.push(newRecord);
+
+        // Re-render the medical history
+        renderMedicalHistory(patients[selectedPatientIndex]);
+
+        // Reset and hide the form
+        this.reset();
+        toggleUpdateForm();
+
+        alert('Medical record updated successfully!');
+    });
+
+    // Go back to patient dashboard
+    function goBack() {
+        // window.location.href = 'dashboard.html';
+        window.location.href = 'patientDashboard.html';
+    }
+
+    // Logout function
+    function logout() {
+        if (confirm('Are you sure you want to logout?')) {
+            window.location.href = 'login.html';
+        }
+    }
+</script>
+</body>
+</html>

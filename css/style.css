@@ -83,13 +83,13 @@ button:hover {
 
 /* Links */
 a {
-  color: #0072CE;
+  color: #012773;
   text-decoration: none;
 }
 
 /* Footer */
 .custom-footer {
-  background-color: #0099CC;
+  background-color: #012773;
   color: white;
   width: 100%;
   padding: 30px 0;
@@ -156,4 +156,61 @@ a {
 .footer-section ul li {
   margin-bottom: 4px;
   line-height: 1.4;
+}
+
+/* Shared footer style for all dashboards */
+footer,
+.custom-footer {
+  background-color: #012773;
+  color: white;
+  padding: 20px;
+  margin-top: auto;
+}
+
+footer .footer-content,
+.custom-footer .footer-content {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.footer-logo {
+  max-width: 100px;
+  margin-bottom: 10px;
+}
+
+.footer-section {
+  flex: 1;
+  min-width: 200px;
+  margin: 10px;
+}
+
+.footer-section h4 {
+  margin-bottom: 10px;
+  text-decoration: underline;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.social-icons a {
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding-left: 0;
 }
