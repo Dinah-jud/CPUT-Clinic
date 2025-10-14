@@ -11,70 +11,99 @@ $student = $_SESSION['student'];
 <head>
   <meta charset="UTF-8">
   <title>Student Profile</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
+    :root {
+      --dark-blue: #003399;
+      --mid-blue: #0099CC;
+      --light-bg: #f4f7fb;
+      --white: #ffffff;
+    }
+
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
+      background-color: var(--light-bg);
       min-height: 100vh;
-      background: linear-gradient(to bottom,
-        rgba(255,255,255,0) 0%,
-        rgba(255,255,255,0) 50%,
-        #f0f4f8 50%,
-        #f0f4f8 100%);
-      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navbar */
+    .navbar {
+      background-color: var(--dark-blue);
+      color: var(--white);
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar h1 {
+      font-size: 20px;
+      margin: 0;
+    }
+
+    .navbar .nav-links a {
+      color: var(--white);
+      text-decoration: none;
+      margin-left: 20px;
+      font-size: 15px;
+      transition: color 0.3s ease;
+    }
+
+    .navbar .nav-links a:hover {
+      color: var(--mid-blue);
+    }
+
+    /* Profile Container */
+    .profile-container {
       display: flex;
       justify-content: center;
-      align-items: flex-start;
+      align-items: center;
+      flex-grow: 1;
       padding: 40px 20px;
     }
-    body::before {
-      content: "";
-      background: url('images/background.png') no-repeat center center;
-      background-size: cover;
-      position: absolute;
-      top: 0;
-      left: 0;
+
+    .profile-card {
+      background-color: var(--white);
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+      padding: 40px;
       width: 100%;
-      height: 50vh;
-      z-index: -1;
-    }
-    .container {
-      background-color: rgba(255, 255, 255, 0.95);
-      padding: 30px 40px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0, 56, 101, 0.2);
       max-width: 500px;
-      width: 100%;
-      margin-top: 40px;
-      z-index: 1;
-      position: relative;
       text-align: center;
     }
+
     .profile-pic {
-      width: 150px;
-      height: 150px;
+      width: 130px;
+      height: 130px;
       border-radius: 50%;
       object-fit: cover;
-      margin-bottom: 20px;
-      border: 3px solid #003865;
+      border: 3px solid var(--mid-blue);
+      margin-bottom: 15px;
     }
+
     h2 {
-      color: #003865;
-      margin-bottom: 20px;
+      color: var(--dark-blue);
+      margin-bottom: 15px;
     }
+
     .detail {
       text-align: left;
-      margin: 8px 0;
       font-size: 16px;
+      margin: 8px 0;
     }
+
     .detail strong {
-      color: #003865;
+      color: var(--mid-blue);
     }
+
     .back-btn {
       margin-top: 25px;
-      background-color: #e0e0e0;
-      color: #003865;
+      background-color: var(--dark-blue);
+      color: var(--white);
       border: none;
       padding: 12px;
       width: 100%;
@@ -83,28 +112,40 @@ $student = $_SESSION['student'];
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
+
     .back-btn:hover {
-      background-color: #c7c7c7;
+      background-color: var(--mid-blue);
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <!-- Profile Image -->
-    <img src="images/profileP.PNG" alt="Profile Picture" class="profile-pic">
 
-    <h2><?php echo htmlspecialchars($student['full_name']); ?>'s Profile</h2>
-
-    <!-- Student Details -->
-    <p class="detail"><strong>Full Name:</strong> <?php echo htmlspecialchars($student['full_name']); ?></p>
-    <p class="detail"><strong>Email:</strong> <?php echo htmlspecialchars($student['email']); ?></p>
-    <p class="detail"><strong>Phone:</strong> <?php echo htmlspecialchars($student['phone']); ?></p>
-    <p class="detail"><strong>Student Number:</strong> <?php echo htmlspecialchars($student['student_no']); ?></p>
-    <p class="detail"><strong>Address:</strong> <?php echo htmlspecialchars($student['address'] ?? ''); ?></p>
-
-    <!-- Back Button -->
-    <button class="back-btn" onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
-    
+  <!-- Navbar -->
+  <div class="navbar">
+    <h1><i class="fa-solid fa-user-graduate"></i> Student Profile</h1>
+    <div class="nav-links">
+      <a href="dashboard.html"><i class="fa-solid fa-home"></i> Dashboard</a>
+      <a href="logout.php"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+    </div>
   </div>
+
+  <!-- Profile Section -->
+  <div class="profile-container">
+    <div class="profile-card">
+      <img src="images/profileP.PNG" alt="Profile Picture" class="profile-pic">
+      <h2><?php echo htmlspecialchars($student['full_name']); ?>'s Profile</h2>
+
+      <p class="detail"><strong>Full Name:</strong> <?php echo htmlspecialchars($student['full_name']); ?></p>
+      <p class="detail"><strong>Email:</strong> <?php echo htmlspecialchars($student['email']); ?></p>
+      <p class="detail"><strong>Phone:</strong> <?php echo htmlspecialchars($student['phone']); ?></p>
+      <p class="detail"><strong>Student Number:</strong> <?php echo htmlspecialchars($student['student_no']); ?></p>
+      <p class="detail"><strong>Address:</strong> <?php echo htmlspecialchars($student['address'] ?? ''); ?></p>
+
+      <button class="back-btn" onclick="window.location.href='dashboard.html'">
+        <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+      </button>
+    </div>
+  </div>
+
 </body>
 </html>
