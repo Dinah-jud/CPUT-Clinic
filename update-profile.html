@@ -3,57 +3,73 @@
 <head>
   <meta charset="UTF-8" />
   <title>Update Profile - CPUT Clinic</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
+    :root {
+      --dark-blue: #003865;
+      --mid-blue: #0099CC;
+      --light-bg: #f4f7fb;
+      --white: #ffffff;
+    }
+
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
+      background-color: var(--light-bg);
       min-height: 100vh;
-      background: linear-gradient(to bottom,
-        rgba(255,255,255,0) 0%,
-        rgba(255,255,255,0) 50%,
-        #f0f4f8 50%,
-        #f0f4f8 100%);
-      position: relative;
       display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 40px 20px;
+      flex-direction: column;
     }
 
-    body::before {
-      content: "";
-      background: url('images/background.png') no-repeat center center;
-      background-size: cover;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 50vh;
-      z-index: -1;
+    /* Navbar */
+    .navbar {
+      background-color: var(--dark-blue);
+      color: var(--white);
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
+    .navbar h1 {
+      font-size: 20px;
+      margin: 0;
+    }
+
+    .navbar .nav-links a {
+      color: var(--white);
+      text-decoration: none;
+      margin-left: 20px;
+      font-size: 15px;
+      transition: color 0.3s ease;
+    }
+
+    .navbar .nav-links a:hover {
+      color: var(--mid-blue);
+    }
+
+    /* Container */
     .container {
-      background-color: rgba(255, 255, 255, 0.95);
-      padding: 30px 40px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px rgba(0, 56, 101, 0.2);
-      max-width: 500px;
+      background-color: var(--white);
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+      max-width: 600px;
       width: 100%;
-      margin-top: 40px;
-      z-index: 1;
-      position: relative;
+      margin: 60px auto;
+      text-align: left;
     }
 
     .logo {
       display: block;
-      margin: 0 auto 20px auto;
-      width: 180px;
+      margin: 0 auto 15px auto;
+      width: 140px;
     }
 
     h2 {
       text-align: center;
-      color: #003865;
+      color: var(--dark-blue);
       margin-bottom: 25px;
     }
 
@@ -72,32 +88,38 @@
     input, select {
       padding: 10px;
       border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 16px;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: border 0.3s ease;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border: 1px solid var(--mid-blue);
     }
 
     button {
-      background-color: #0072CE;
-      color: white;
+      background-color: var(--dark-blue);
+      color: var(--white);
       padding: 12px;
       margin-top: 30px;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 16px;
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
 
     button:hover {
-      background-color: #005fa3;
+      background-color: var(--mid-blue);
     }
 
     .back-btn {
       margin-top: 15px;
       background-color: #e0e0e0;
-      color: #003865;
-      border: none;
-      cursor: pointer;
+      color: var(--dark-blue);
+      font-weight: 600;
+      transition: background-color 0.3s ease;
     }
 
     .back-btn:hover {
@@ -106,6 +128,18 @@
   </style>
 </head>
 <body>
+
+  <!-- Navbar -->
+  <div class="navbar">
+    <h1><i class="fa-solid fa-user-pen"></i> Update Profile</h1>
+    <div class="nav-links">
+      <a href="patientDashboard.php"><i class="fa-solid fa-house"></i> Dashboard</a>
+
+      <!-- <a href="logout.php"><i class="fa-solid fa-right-from-bracket"></i> Logout</a> -->
+    </div>
+  </div>
+
+  <!-- Update Form -->
   <div class="container">
     <img src="images/cput-logo.png" alt="CPUT Logo" class="logo" />
     <h2>Update Your Profile</h2>
@@ -134,10 +168,12 @@
       <label for="address">Address</label>
       <input type="text" id="address" name="address" placeholder="Your home address" required />
 
-      <button type="submit">Save Changes</button>
+      <button type="submit"><i class="fa-solid fa-save"></i> Save Changes</button>
     </form>
 
-    <button class="back-btn" onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+    <!-- <button class="back-btn" onclick="window.location.href='dashboard.html'">
+      <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+    </button> -->
   </div>
 
   <script>
@@ -148,5 +184,6 @@
       window.location.href = 'dashboard.html';
     });
   </script>
+
 </body>
 </html>
