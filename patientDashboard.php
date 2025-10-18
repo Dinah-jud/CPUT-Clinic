@@ -1,3 +1,15 @@
+<?php
+session_start();
+
+// Redirect to login if not logged in
+if (!isset($_SESSION['student'])) {
+  header("Location: login.html");
+  exit();
+}
+
+// Store session data in variable
+$student = $_SESSION['student'];
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -249,7 +261,8 @@
     <!-- Profile Section (Clickable) -->
     <div class="profile-section" onclick="window.location.href='profile.php'">
       <i class="fas fa-user-circle fa-2x"></i>
-      <span>Welcome, Patient</span>
+      <span>Welcome, <?php echo htmlspecialchars($student['full_name']); ?></span>
+
     </div>
   </header>
 
@@ -266,22 +279,19 @@
         <i class="fas fa-calendar-check"></i>
         <span>Book Appointment</span>
       </div>
-      <div class="nav-item" onclick="window.location.href='doctorDashboard.html'">
-        <i class="fas fa-user-md"></i>
-        <span>Doctor Dashboard</span>
-      </div>
+    
       <div class="nav-item" onclick="window.location.href='prescription.html'">
         <i class="fas fa-prescription-bottle-alt"></i>
         <span>Prescription</span>
       </div>
-      <div class="nav-item" onclick="window.location.href='user-management.html'">
+      <!-- <div class="nav-item" onclick="window.location.href='user-management.html'">
         <i class="fas fa-users-cog"></i>
         <span>User Management</span>
-      </div>
-      <div class="nav-item" onclick="window.location.href='reporting.html'">
+      </div> -->
+      <!-- <div class="nav-item" onclick="window.location.href='reporting.html'">
         <i class="fas fa-chart-line"></i>
         <span>Reporting & Analytics</span>
-      </div>
+      </div> -->
       <div class="nav-item" onclick="logout()">
         <i class="fas fa-sign-out-alt"></i>
         <span>Logout</span>

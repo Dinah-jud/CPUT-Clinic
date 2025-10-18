@@ -14,7 +14,7 @@ $student = $_SESSION['student'];
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     :root {
-      --dark-blue: #003399;
+      --dark-blue: #003865; 
       --mid-blue: #0099CC;
       --light-bg: #f4f7fb;
       --white: #ffffff;
@@ -123,10 +123,7 @@ $student = $_SESSION['student'];
   <!-- Navbar -->
   <div class="navbar">
     <h1><i class="fa-solid fa-user-graduate"></i> Student Profile</h1>
-    <div class="nav-links">
-      <a href="dashboard.html"><i class="fa-solid fa-home"></i> Dashboard</a>
-      <a href="logout.php"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
-    </div>
+  
   </div>
 
   <!-- Profile Section -->
@@ -138,10 +135,12 @@ $student = $_SESSION['student'];
       <p class="detail"><strong>Full Name:</strong> <?php echo htmlspecialchars($student['full_name']); ?></p>
       <p class="detail"><strong>Email:</strong> <?php echo htmlspecialchars($student['email']); ?></p>
       <p class="detail"><strong>Phone:</strong> <?php echo htmlspecialchars($student['phone']); ?></p>
-      <p class="detail"><strong>Student Number:</strong> <?php echo htmlspecialchars($student['student_no']); ?></p>
+      <p class="detail"><strong>ID Number:</strong> <?php echo htmlspecialchars($student['idNumber']); ?></p>
+      <p class="detail"><strong>Gender:</strong> <?php echo htmlspecialchars($student['gender']); ?></p>
       <p class="detail"><strong>Address:</strong> <?php echo htmlspecialchars($student['address'] ?? ''); ?></p>
+      <p class="detail"><strong>User Type:</strong> <?php echo htmlspecialchars($student['user_type']); ?></p>
 
-      <button class="back-btn" onclick="window.location.href='dashboard.html'">
+      <button class="back-btn" onclick="window.location.href='patientDashboard.php'">
         <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
       </button>
     </div>
