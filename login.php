@@ -36,19 +36,9 @@ if ($result && $result->num_rows === 1) {
             exit();
         }
 
-        // Log user in
-        // $_SESSION['user'] = [
-        //   'id' => $row['id'],
-        //   'full_name' => $row['full_name'],
-        //   'email' => $row['email'],
-        //   'phone' => $row['phone'],
-        //   'idNumber' => $row['idNumber'],
-        //   'gender' => $row['gender'],
-        //   'address' => $row['address'],
-        //   'user_type' => $row['user_type']
-        // ];
 
         $_SESSION['student'] = [
+            'id'          => $row['id'],
             'full_name'   => $row['full_name'],
             'email'       => $row['email'],
             'phone'       => $row['phone'],
