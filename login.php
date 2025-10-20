@@ -3,7 +3,7 @@ session_start();
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "student_db";
+$dbname = "db";
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -49,6 +49,7 @@ if ($result && $result->num_rows === 1) {
         // ];
 
         $_SESSION['student'] = [
+            'id'          => $row['id'],
             'full_name'   => $row['full_name'],
             'email'       => $row['email'],
             'phone'       => $row['phone'],
