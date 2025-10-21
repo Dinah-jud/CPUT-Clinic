@@ -275,11 +275,20 @@ $student = $_SESSION['student'];
         <i class="fas fa-user-edit"></i>
         <span>Update Profile</span>
       </div>
-      <div class="nav-item" onclick="window.location.href='book-appointment.html'">
+      <div class="nav-item" onclick="window.location.href='appointments/appointment_form.php'">
         <i class="fas fa-calendar-check"></i>
         <span>Book Appointment</span>
       </div>
-    
+
+      <div class="nav-item" onclick="window.location.href='appointments/list_appointments.php'">
+        <i class="fas fa-list"></i>
+        <span>View Appointments</span>
+      </div>
+      <div class="nav-item" onclick="window.location.href='availability/list_availability.php'">
+        <i class="fas fa-eye"></i>
+        <span>View Available Slots</span>
+      </div>
+
       <div class="nav-item" onclick="window.location.href='prescriptionPatientView.php'">
         <i class="fas fa-prescription-bottle-alt"></i>
         <span>Prescription</span>
