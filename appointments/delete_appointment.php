@@ -1,20 +1,28 @@
 <?php
-session_start();
+include '../db.php';
 
-// Redirect to login if not logged in
-if (!isset($_SESSION['student'])) {
-  header("Location: login.html");
-  exit();
+if (isset($_GET['id'])) {
+    $appointment_id = $_GET['id'];
+    
+    $sql = "DELETE FROM appointment WHERE appointment_id = $appointment_id";
+    
+    if ($conn->query($sql) === TRUE) {
+        $message = "Appointment deleted successfully!";
+        $message_type = "success";
+    } else {
+        $message = "Error: " . $conn->error;
+        $message_type = "error";
+    }
+} else {
+    $message = "No appointment ID specified.";
+    $message_type = "error";
 }
-
-// Store session data in variable
-$student = $_SESSION['student'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Patient Dashboard</title>
+  <title>Delete Appointment - CPUT Clinic</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * {
@@ -32,7 +40,6 @@ $student = $_SESSION['student'];
       min-height: 100vh;
     }
 
-    /* Header */
     .header {
       background-color: #003865;
       color: white;
@@ -58,21 +65,14 @@ $student = $_SESSION['student'];
       align-items: center;
       gap: 10px;
       cursor: pointer;
-      transition: opacity 0.3s;
     }
 
-    .profile-section:hover {
-      opacity: 0.8;
-    }
-
-    /* Layout */
     .container {
       display: flex;
       flex: 1;
       min-height: calc(100vh - 140px);
     }
 
-    /* Sidebar */
     .sidebar {
       width: 250px;
       background-color: #fff;
@@ -102,39 +102,58 @@ $student = $_SESSION['student'];
       text-align: center;
     }
 
-    /* Main content area */
     .main-content {
       flex: 1;
       padding: 2rem;
     }
 
-    .main-content h2 {
-      font-size: 1.8rem;
-      margin-bottom: 1rem;
-      color: #003865;
-    }
-
-    .welcome-card {
+    .content-card {
       background: white;
       border-radius: 10px;
       padding: 2rem;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       text-align: center;
-      max-width: 600px;
+      max-width: 500px;
       margin: 0 auto;
     }
 
-    .welcome-card img {
-      width: 100px;
-      margin-bottom: 1rem;
+    .message {
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 5px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.1rem;
     }
 
-    .welcome-card p {
-      font-size: 1rem;
-      color: #555;
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
     }
 
-    /* Footer */
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .btn-action {
+      background-color: #0072CE;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      margin: 10px;
+    }
+
+    .btn-action:hover {
+      background-color: #005fa3;
+    }
+
     footer {
       background-color: #012773;
       color: white;
@@ -192,155 +211,80 @@ $student = $_SESSION['student'];
       margin-bottom: 4px;
       line-height: 1.4;
     }
-
-    .appointments-card {
-  background-color: #ffffff;
-  border-radius: 15px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  margin-top: 20px;
-  width: 90%;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.appointments-card h3 {
-  color: #003399;
-  margin-bottom: 10px;
-}
-
-.appointments-card p {
-  color: #555;
-  margin-bottom: 15px;
-}
-
-.appointments-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.appointments-table th,
-.appointments-table td {
-  text-align: left;
-  padding: 12px 15px;
-  border-bottom: 1px solid #ddd;
-}
-
-.appointments-table th {
-  background-color: #f2f6ff;
-  color: #003399;
-  font-weight: bold;
-}
-
-.status {
-  padding: 5px 10px;
-  border-radius: 20px;
-  font-weight: bold;
-  color: #fff;
-}
-
-.status.confirmed {
-  background-color: #28a745;
-}
-
-.status.pending {
-  background-color: #ffc107;
-}
   </style>
 </head>
 <body>
 
-  <!-- Header -->
   <header class="header">
     <div class="logo-container" style="display:flex;align-items:center;">
-      <img src="images/cput-logo.png" alt="CPUT Logo">
-      <div class="header-title">CPUT Clinic - Patient Dashboard</div>
+      <img src="../images/cput-logo.png" alt="CPUT Logo">
+      <div class="header-title">CPUT Clinic - Delete Appointment</div>
     </div>
 
-    <!-- Profile Section (Clickable) -->
-    <div class="profile-section" onclick="window.location.href='profile.php'">
+    <div class="profile-section" onclick="window.location.href='../profile.php'">
       <i class="fas fa-user-circle fa-2x"></i>
-      <span>Welcome, <?php echo htmlspecialchars($student['full_name']); ?></span>
-
+      <span>Welcome, Patient</span>
     </div>
   </header>
 
-  <!-- Main Layout -->
   <div class="container">
-
-    <!-- Sidebar -->
     <aside class="sidebar">
-      <div class="nav-item active" onclick="window.location.href='update-profile.html'">
+      <div class="nav-item" onclick="window.location.href='../dashboard.html'">
+        <i class="fas fa-home"></i>
+        <span>Dashboard</span>
+      </div>
+      <div class="nav-item" onclick="window.location.href='../update-profile.html'">
         <i class="fas fa-user-edit"></i>
         <span>Update Profile</span>
       </div>
-      <div class="nav-item" onclick="window.location.href='appointments/appointment_form.php'">
+      <div class="nav-item" onclick="window.location.href='appointment_form.html'">
         <i class="fas fa-calendar-check"></i>
         <span>Book Appointment</span>
       </div>
-    
-      <div class="nav-item" onclick="window.location.href='prescriptionPatientView.php'">
-        <i class="fas fa-prescription-bottle-alt"></i>
-        <span>Prescription</span>
+      <div class="nav-item" onclick="window.location.href='list_appointments.php'">
+        <i class="fas fa-list"></i>
+        <span>View Appointments</span>
       </div>
-     
+      <div class="nav-item" onclick="window.location.href='../availability/availability_form.html'">
+        <i class="fas fa-clock"></i>
+        <span>Manage Availability</span>
+      </div>
       <div class="nav-item" onclick="logout()">
         <i class="fas fa-sign-out-alt"></i>
         <span>Logout</span>
       </div>
     </aside>
 
-    <!-- Main content -->
     <main class="main-content">
-      <div class="welcome-card">
-        <img src="images/clinic-logo.jpg" alt="Clinic Logo">
-        <h2>Welcome to the CPUT Clinic Portal</h2>
-        <p>Here you can manage your profile, book appointments, view prescriptions, and access reports easily and securely.</p>
+      <div class="content-card">
+        <div class="message <?php echo $message_type; ?>">
+          <?php echo $message; ?>
+        </div>
+        
+        <?php if ($message_type == 'success'): ?>
+          <script>
+            setTimeout(function() {
+              window.location.href = 'list_appointments.php';
+            }, 1500);
+          </script>
+          <p>Redirecting to appointments list...</p>
+        <?php else: ?>
+          <div style="margin-top: 20px;">
+            <a href="list_appointments.php" class="btn-action">Back to Appointments</a>
+          </div>
+        <?php endif; ?>
       </div>
-
-      <!-- Upcoming Appointments Table -->
-<div class="appointments-card">
-  <h3>Upcoming Appointments</h3>
-  <p>Here are your next scheduled visits.</p>
-  <table class="appointments-table">
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Doctor</th>
-        <th>Department</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>15 Oct 2025</td>
-        <td>Dr. NN Dlamini</td>
-        <td>General Medicine</td>
-        <td><span class="status confirmed">Confirmed</span></td>
-      </tr>
-      <tr>
-        <td>22 Oct 2025</td>
-        <td>Dr. Mhlawuli</td>
-        <td>Dental</td>
-        <td><span class="status pending">Pending</span></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
     </main>
-
   </div>
 
-  <!-- Footer -->
   <footer>
     <div class="footer-content">
       <div class="footer-section">
-        <img src="images/clinic-logo.jpg" alt="Clinic Logo" class="footer-logo">
-        <p><img src="images/email-icon.png" class="icon" alt="Email Icon"> info@cput.ac.za</p>
+        <img src="../images/clinic-logo.jpg" alt="Clinic Logo" class="footer-logo">
+        <p><img src="../images/email-icon.png" class="icon" alt="Email Icon"> info@cput.ac.za</p>
         <div class="social-icons">
           <a href="#" target="_blank">
-            <img src="images/facebook-icon.png" class="icon" alt="Facebook Icon"> Facebook Page
+            <img src="../images/facebook-icon.png" class="icon" alt="Facebook Icon"> Facebook Page
           </a>
         </div>
       </div>
@@ -348,10 +292,10 @@ $student = $_SESSION['student'];
       <div class="footer-section">
         <h4>Clinic Contact Details</h4>
         <ul>
-          <li><img src="images/phone-icon.png" class="icon" alt="Phone Icon"> Bellville: +27 21 959 6403</li>
-          <li><img src="images/phone-icon.png" class="icon" alt="Phone Icon"> Cape Town (D6): +27 21 460 3405</li>
-          <li><img src="images/phone-icon.png" class="icon" alt="Phone Icon"> Mowbray: +27 21 680 1555</li>
-          <li><img src="images/phone-icon.png" class="icon" alt="Phone Icon"> Wellington: +27 21 864 5522</li>
+          <li><img src="../images/phone-icon.png" class="icon" alt="Phone Icon"> Bellville: +27 21 959 6403</li>
+          <li><img src="../images/phone-icon.png" class="icon" alt="Phone Icon"> Cape Town (D6): +27 21 460 3405</li>
+          <li><img src="../images/phone-icon.png" class="icon" alt="Phone Icon"> Mowbray: +27 21 680 1555</li>
+          <li><img src="../images/phone-icon.png" class="icon" alt="Phone Icon"> Wellington: +27 21 864 5522</li>
         </ul>
       </div>
 
@@ -371,10 +315,14 @@ $student = $_SESSION['student'];
 
   <script>
     function logout() {
-      alert('Successfully logged out!');
-      window.location.href = 'login.html';
+      if(confirm('Are you sure you want to logout?')) {
+        window.location.href = '../login.html';
+      }
     }
   </script>
 
 </body>
 </html>
+<?php
+$conn->close();
+?>
