@@ -3,7 +3,7 @@ session_start();
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "db";
+$dbname = "student_db";
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -142,6 +142,36 @@ $conn->close();
         .allergy-warning { color: red; font-weight: bold; }
         .message { padding: 1rem; background-color: #d4edda; color: #155724; border-radius: 5px; margin-bottom: 1rem; border: 1px solid #c3e6cb;}
 
+
+        /* Back Button Styles */
+    .back-button-container {
+      background-color: transparent; /* remove the blue strip */
+      padding: 10px 30px;
+      display: flex;
+      align-items: center;
+    }
+
+    .back-button {
+      background-color: #0072CE; /* Blue only on the button */
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: bold;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .back-button:hover {
+      background-color: #005fa3;
+    }
+
         /* Footer */
         footer { background-color: #012773; color: white; padding: 30px 0; margin-top: auto; }
         .footer-content { display: flex; justify-content: space-around; flex-wrap: wrap; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
@@ -167,32 +197,14 @@ $conn->close();
         </div>
     </header>
 
-    <div class="container">
+    <!-- Back to Dashboard Button (top-left corner) -->
+<div class="back-button-container">
+  <a href="patientDashboard.php" class="back-button">
+    <i class="fas fa-arrow-left"></i> Back to Patient Dashboard
+  </a>
+</div>
 
-        <aside class="sidebar">
-            <div class="nav-item" onclick="window.location.href='dashboard.php'">
-                <i class="fas fa-home"></i>
-                <span>Dashboard</span>
-            </div>
-            <div class="nav-item" onclick="window.location.href='update-profile.html'">
-                <i class="fas fa-user-edit"></i>
-                <span>Update Profile</span>
-            </div>
-            <div class="nav-item" onclick="window.location.href='book-appointment.html'">
-                <i class="fas fa-calendar-check"></i>
-                <span>Book Appointment</span>
-            </div>
-            
-            <div class="nav-item active" onclick="window.location.href='prescriptionPatientView.php'">
-                <i class="fas fa-prescription-bottle-alt"></i>
-                <span>Prescription</span>
-            </div>
-            
-            <div class="nav-item" onclick="window.location.href='logout.php'">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Logout</span>
-            </div>
-        </aside>
+    
 
         <main class="main-content">
             <div class="card">
