@@ -84,12 +84,10 @@ if (isset($_GET['delete']) && isset($_GET['role'])) {
 
 <div class="container">
   <aside class="sidebar">
-      <div class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</div>
-      <div class="nav-item active"><i class="fas fa-users-cog"></i> User Management</div>
-      <div class="nav-item"><i class="fas fa-calendar-check"></i> Shift Schedule</div>
-      <div class="nav-item"><i class="fas fa-calendar-check"></i> Appointments</div>
-      <div class="nav-item"><i class="fas fa-prescription-bottle-alt"></i> Report and Analytics</div>
-      <div class="nav-item"><i class="fas fa-user-edit"></i> Update Profile</div>
+  <div class="nav-item"><a href="adminDashboard.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></div>
+  <div class="nav-item active"><a href="userManagement.html"><i class="fas fa-users-cog"></i> User Management</a></div>
+  <div class="nav-item"><a href="manageAvailability.html"><i class="fas fa-calendar-check"></i> Manage Availability</a></div>
+  <div class="nav-item"><a href="update-profile.html"><i class="fas fa-user-edit"></i> Update Profile</a></div>
   </aside>
 
   <main class="main-content">
