@@ -275,7 +275,7 @@ $student = $_SESSION['student'];
         <i class="fas fa-user-edit"></i>
         <span>Update Profile</span>
       </div>
-      <div class="nav-item" onclick="window.location.href='book-appointment.html'">
+      <div class="nav-item" onclick="window.location.href='appointments/appointment_form.php'">
         <i class="fas fa-calendar-check"></i>
         <span>Book Appointment</span>
       </div>
