@@ -280,18 +280,11 @@ $student = $_SESSION['student'];
         <span>Book Appointment</span>
       </div>
     
-      <div class="nav-item" onclick="window.location.href='prescription.html'">
+      <div class="nav-item" onclick="window.location.href='prescriptionPatientView.php'">
         <i class="fas fa-prescription-bottle-alt"></i>
         <span>Prescription</span>
       </div>
-      <!-- <div class="nav-item" onclick="window.location.href='user-management.html'">
-        <i class="fas fa-users-cog"></i>
-        <span>User Management</span>
-      </div> -->
-      <!-- <div class="nav-item" onclick="window.location.href='reporting.html'">
-        <i class="fas fa-chart-line"></i>
-        <span>Reporting & Analytics</span>
-      </div> -->
+     
       <div class="nav-item" onclick="logout()">
         <i class="fas fa-sign-out-alt"></i>
         <span>Logout</span>
