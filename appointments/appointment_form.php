@@ -31,8 +31,8 @@ if ($result && $result->num_rows > 0) {
 
 // Get available slots for selected doctor (if doctor is selected)
 $available_slots = [];
-$selected_doctor = $_POST['doctor_id'] ?? '';
-$selected_date = $_POST['appointment_date'] ?? '';
+$selected_doctor = $_GET['doctor_id'] ?? ''; // Changed to GET
+$selected_date = $_GET['appointment_date'] ?? ''; // Changed to GET
 
 if ($selected_doctor && $selected_date) {
   // Get doctor's availability for selected date
@@ -250,6 +250,21 @@ if ($selected_doctor && $selected_date) {
       cursor: not-allowed;
     }
 
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-left: 0.5rem;
+    }
+
+    .btn-secondary:hover {
+      background-color: #545b62;
+    }
+
     .time-slots {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -299,6 +314,13 @@ if ($selected_doctor && $selected_date) {
       text-align: center;
       padding: 1rem;
       color: #0072CE;
+    }
+
+    .time-error {
+      color: #dc3545;
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      display: none;
     }
 
     footer {
@@ -420,7 +442,7 @@ if ($selected_doctor && $selected_date) {
 
           <div class="form-group">
             <label for="doctor_id">Select Doctor</label>
-            <select id="doctor_id" name="doctor_id" required onchange="this.form.submit()">
+            <select id="doctor_id" name="doctor_id" required>
               <option value="">-- Select Doctor --</option>
               <?php foreach ($doctors as $doc): ?>
                 <option value="<?php echo (int)$doc['id']; ?>" <?php echo ($selected_doctor == $doc['id']) ? 'selected' : ''; ?>>
@@ -434,8 +456,11 @@ if ($selected_doctor && $selected_date) {
             <label for="appointment_date">Appointment Date</label>
             <input type="date" id="appointment_date" name="appointment_date" required 
                    min="<?php echo date('Y-m-d'); ?>" 
-                   value="<?php echo htmlspecialchars($selected_date); ?>"
-                   onchange="this.form.submit()">
+                   value="<?php echo htmlspecialchars($selected_date); ?>">
+          </div>
+
+          <div class="form-group">
+            <button type="button" id="checkAvailability" class="btn-secondary">Check Available Slots</button>
           </div>
 
           <?php if ($selected_doctor && $selected_date): ?>
@@ -449,7 +474,10 @@ if ($selected_doctor && $selected_date) {
                   </div>
                 <?php endforeach; ?>
               </div>
-              <input type="hidden" id="selected_time" name="appointment_time" required>
+              <input type="hidden" id="selected_time" name="appointment_time" value="" required>
+              <div id="time-error" class="time-error">
+                Please select a time slot before booking.
+              </div>
             <?php else: ?>
               <div class="no-slots">
                 <i class="fas fa-calendar-times"></i>
@@ -523,12 +551,37 @@ if ($selected_doctor && $selected_date) {
       }
     }
 
-    // Time slot selection
     document.addEventListener('DOMContentLoaded', function() {
+      const doctorSelect = document.getElementById('doctor_id');
+      const dateInput = document.getElementById('appointment_date');
+      const checkAvailabilityBtn = document.getElementById('checkAvailability');
       const timeSlots = document.getElementById('timeSlots');
       const selectedTimeInput = document.getElementById('selected_time');
       const submitBtn = document.getElementById('submitBtn');
+      const timeError = document.getElementById('time-error');
       
+      // Set minimum date to today
+      if (dateInput) {
+        dateInput.min = new Date().toISOString().split('T')[0];
+      }
+
+      // Check availability button
+      if (checkAvailabilityBtn) {
+        checkAvailabilityBtn.addEventListener('click', function() {
+          const doctorId = doctorSelect.value;
+          const appointmentDate = dateInput.value;
+          
+          if (!doctorId || !appointmentDate) {
+            alert('Please select both a doctor and a date.');
+            return;
+          }
+          
+          // Redirect to same page with GET parameters
+          window.location.href = `appointment_form.php?doctor_id=${doctorId}&appointment_date=${appointmentDate}`;
+        });
+      }
+
+      // Time slot selection
       if (timeSlots) {
         timeSlots.addEventListener('click', function(e) {
           if (e.target.classList.contains('time-slot')) {
@@ -543,6 +596,9 @@ if ($selected_doctor && $selected_date) {
             // Set the hidden input value
             selectedTimeInput.value = e.target.dataset.time;
             
+            // Hide error message
+            if (timeError) timeError.style.display = 'none';
+            
             // Enable submit button
             if (submitBtn) {
               submitBtn.disabled = false;
@@ -551,20 +607,19 @@ if ($selected_doctor && $selected_date) {
         });
       }
 
-      // Set minimum date to today
-      const dateInput = document.getElementById('appointment_date');
-      if (dateInput) {
-        dateInput.min = new Date().toISOString().split('T')[0];
-      }
-    });
-
-    // Form validation
-    document.getElementById('appointmentForm').addEventListener('submit', function(e) {
-      const selectedTime = document.getElementById('selected_time');
-      if (selectedTime && !selectedTime.value) {
-        e.preventDefault();
-        alert('Please select an available time slot.');
-        return false;
+      // Form validation
+      const appointmentForm = document.getElementById('appointmentForm');
+      if (appointmentForm) {
+        appointmentForm.addEventListener('submit', function(e) {
+          const selectedTime = document.getElementById('selected_time');
+          if (selectedTime && !selectedTime.value) {
+            e.preventDefault();
+            if (timeError) timeError.style.display = 'block';
+            // Scroll to error
+            timeError.scrollIntoView({ behavior: 'smooth' });
+            return false;
+          }
+        });
       }
     });
   </script>

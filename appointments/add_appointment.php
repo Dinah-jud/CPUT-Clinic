@@ -1,47 +1,82 @@
 <?php
+session_start();
 include '../db.php';
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $patient_id = $_POST['patient_id'];
-    $doctor_id = $_POST['doctor_id'];
-    $appointment_date = $_POST['appointment_date'];
-    $appointment_time = $_POST['appointment_time'];
-    $appointment_type = $_POST['appointment_type'];
+// Ensure user is logged in
+if (!isset($_SESSION['student'])) {
+    header("Location: ../login.html");
+    exit();
+}
 
-    // Check if doctor is available at that time
-    $check_availability = $conn->query("
-        SELECT * FROM availabilityschedule 
-        WHERE doctor_id = '$doctor_id' 
-        AND available_date = '$appointment_date'
-        AND start_time <= '$appointment_time'
-        AND end_time >= '$appointment_time'
-    ");
-    
-    // Check if time slot is already booked
-    $check_booked = $conn->query("
-        SELECT * FROM appointment 
-        WHERE doctor_id = '$doctor_id'
-        AND appointment_date = '$appointment_date'
-        AND appointment_time = '$appointment_time'
-    ");
-    
-    if ($check_availability->num_rows == 0) {
-        $message = "Error: Doctor is not available at this time! Please check the availability schedule.";
-        $message_type = "error";
-    } elseif ($check_booked->num_rows > 0) {
-        $message = "Error: This time slot is already booked! Please choose a different time.";
+$user = $_SESSION['student'];
+$user_id = $user['id'];
+$full_name = $user['full_name'] ?? 'Patient';
+$user_type = $user['user_type'] ?? 'patient';
+
+// Only patients can book appointments
+if ($user_type !== 'patient') {
+    header("Location: ../dashboard.html");
+    exit();
+}
+
+$message = "";
+$message_type = "";
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Check if all required fields are present
+    if (!isset($_POST['appointment_time']) || empty($_POST['appointment_time'])) {
+        $message = "Error: Please select an appointment time.";
         $message_type = "error";
     } else {
-        // If available, book the appointment
-        $sql = "INSERT INTO appointment (patient_id, doctor_id, appointment_date, appointment_time, appointment_type) 
-                VALUES ('$patient_id', '$doctor_id', '$appointment_date', '$appointment_time', '$appointment_type')";
+        $patient_id = (int)$_POST['patient_id'];
+        $doctor_id = (int)$_POST['doctor_id'];
+        $appointment_date = $_POST['appointment_date'];
+        $appointment_time = $_POST['appointment_time'];
+        $appointment_type = $_POST['appointment_type'];
 
-        if ($conn->query($sql) === TRUE) {
-            $message = "Appointment booked successfully!";
-            $message_type = "success";
-        } else {
-            $message = "Error: " . $conn->error;
+        // Check if doctor is available at that time using prepared statements
+        $check_availability = $conn->prepare("
+            SELECT * FROM availabilityschedule 
+            WHERE doctor_id = ? 
+            AND available_date = ?
+            AND start_time <= ?
+            AND end_time >= ?
+        ");
+        $check_availability->bind_param("isss", $doctor_id, $appointment_date, $appointment_time, $appointment_time);
+        $check_availability->execute();
+        $availability_result = $check_availability->get_result();
+        
+        // Check if time slot is already booked
+        $check_booked = $conn->prepare("
+            SELECT * FROM appointment 
+            WHERE doctor_id = ?
+            AND appointment_date = ?
+            AND appointment_time = ?
+            AND status != 'Cancelled'
+        ");
+        $check_booked->bind_param("iss", $doctor_id, $appointment_date, $appointment_time);
+        $check_booked->execute();
+        $booked_result = $check_booked->get_result();
+        
+        if ($availability_result->num_rows == 0) {
+            $message = "Error: Doctor is not available at this time! Please check the availability schedule.";
             $message_type = "error";
+        } elseif ($booked_result->num_rows > 0) {
+            $message = "Error: This time slot is already booked! Please choose a different time.";
+            $message_type = "error";
+        } else {
+            // If available, book the appointment
+            $sql = $conn->prepare("INSERT INTO appointment (patient_id, doctor_id, appointment_date, appointment_time, appointment_type, status) 
+                    VALUES (?, ?, ?, ?, ?, 'Scheduled')");
+            $sql->bind_param("iisss", $patient_id, $doctor_id, $appointment_date, $appointment_time, $appointment_type);
+
+            if ($sql->execute()) {
+                $message = "Appointment booked successfully!";
+                $message_type = "success";
+            } else {
+                $message = "Error: " . $conn->error;
+                $message_type = "error";
+            }
         }
     }
 }
@@ -93,6 +128,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       align-items: center;
       gap: 10px;
       cursor: pointer;
+    }
+
+    .user-role-badge {
+      display: inline-block;
+      background: #0072CE;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      margin-left: 10px;
+      text-transform: capitalize;
     }
 
     .container {
@@ -250,7 +296,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <div class="profile-section" onclick="window.location.href='../profile.php'">
       <i class="fas fa-user-circle fa-2x"></i>
-      <span>Welcome, Patient</span>
+      <span>Welcome, <?php echo htmlspecialchars($full_name); ?></span>
+      <span class="user-role-badge"><?php echo htmlspecialchars($user_type); ?></span>
     </div>
   </header>
 
@@ -260,10 +307,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <i class="fas fa-home"></i>
         <span>Dashboard</span>
       </div>
-      <div class="nav-item" onclick="window.location.href='../update-profile.html'">
-        <i class="fas fa-user-edit"></i>
-        <span>Update Profile</span>
-      </div>
       <div class="nav-item" onclick="window.location.href='appointment_form.php'">
         <i class="fas fa-calendar-check"></i>
         <span>Book Appointment</span>
@@ -272,9 +315,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <i class="fas fa-list"></i>
         <span>View Appointments</span>
       </div>
-      <div class="nav-item" onclick="window.location.href='../availability/availability_form.html'">
-        <i class="fas fa-clock"></i>
-        <span>Manage Availability</span>
+      <div class="nav-item" onclick="window.location.href='../availability/list_availability.php'">
+        <i class="fas fa-eye"></i>
+        <span>View Available Slots</span>
       </div>
       <div class="nav-item" onclick="logout()">
         <i class="fas fa-sign-out-alt"></i>
@@ -284,7 +327,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <main class="main-content">
       <div class="content-card">
-        <?php if (isset($message)): ?>
+        <?php if (isset($message) && !empty($message)): ?>
           <div class="message <?php echo $message_type; ?>">
             <?php echo $message; ?>
           </div>

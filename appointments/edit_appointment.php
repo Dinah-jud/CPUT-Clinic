@@ -1,36 +1,114 @@
 <?php
+session_start();
 include '../db.php';
 
-// Get appointment details if ID is provided
-if (isset($_GET['id'])) {
-    $appointment_id = $_GET['id'];
-    $result = $conn->query("SELECT * FROM appointment WHERE appointment_id = $appointment_id");
-    $appointment = $result->fetch_assoc();
+// Ensure user is logged in
+if (!isset($_SESSION['student'])) {
+    header("Location: ../login.html");
+    exit();
 }
 
-// Update appointment if form is submitted
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $appointment_id = $_POST['appointment_id'];
-    $patient_id = $_POST['patient_id'];
-    $doctor_id = $_POST['doctor_id'];
+$user = $_SESSION['student'];
+$user_id = $user['id'];
+$full_name = $user['full_name'] ?? 'User';
+$user_type = $user['user_type'] ?? 'patient';
+
+// Check if appointment ID is provided
+if (!isset($_GET['id'])) {
+    header("Location: list_appointments.php");
+    exit();
+}
+
+$appointment_id = (int)$_GET['id'];
+
+// Fetch appointment details - FIXED: using appointment_id instead of id
+$appointment_sql = "SELECT a.*, p.full_name as patient_name, d.full_name as doctor_name 
+                    FROM appointment a 
+                    LEFT JOIN students p ON a.patient_id = p.id 
+                    LEFT JOIN students d ON a.doctor_id = d.id 
+                    WHERE a.appointment_id = ?"; // CHANGED: a.id to a.appointment_id
+$stmt = $conn->prepare($appointment_sql);
+$stmt->bind_param("i", $appointment_id);
+$stmt->execute();
+$appointment_result = $stmt->get_result();
+
+if ($appointment_result->num_rows === 0) {
+    header("Location: list_appointments.php");
+    exit();
+}
+
+$appointment = $appointment_result->fetch_assoc();
+
+// Check permissions
+if ($user_type === 'doctor' && $appointment['doctor_id'] != $user_id) {
+    header("Location: list_appointments.php");
+    exit();
+}
+
+if ($user_type === 'patient' && $appointment['patient_id'] != $user_id) {
+    header("Location: list_appointments.php");
+    exit();
+}
+
+// Fetch doctors for dropdown
+$doctors = [];
+$doctor_sql = "SELECT id, full_name FROM students WHERE user_type = 'doctor' ORDER BY full_name";
+$doctor_result = $conn->query($doctor_sql);
+if ($doctor_result && $doctor_result->num_rows > 0) {
+    while ($row = $doctor_result->fetch_assoc()) {
+        $doctors[] = $row;
+    }
+}
+
+// Handle form submission
+$message = "";
+$message_type = "";
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $doctor_id = (int)$_POST['doctor_id'];
     $appointment_date = $_POST['appointment_date'];
     $appointment_time = $_POST['appointment_time'];
     $appointment_type = $_POST['appointment_type'];
-
-    $sql = "UPDATE appointment 
-            SET patient_id = '$patient_id', 
-                doctor_id = '$doctor_id', 
-                appointment_date = '$appointment_date', 
-                appointment_time = '$appointment_time', 
-                appointment_type = '$appointment_type'
-            WHERE appointment_id = $appointment_id";
-
-    if ($conn->query($sql) === TRUE) {
-        $message = "Appointment updated successfully!";
-        $message_type = "success";
-    } else {
-        $message = "Error: " . $conn->error;
+    $status = $_POST['status'];
+    
+    // Check if the new time slot is available
+    $check_sql = "SELECT * FROM appointment 
+                  WHERE doctor_id = ? 
+                  AND appointment_date = ? 
+                  AND appointment_time = ? 
+                  AND appointment_id != ?  -- CHANGED: id to appointment_id
+                  AND status != 'Cancelled'";
+    $check_stmt = $conn->prepare($check_sql);
+    $check_stmt->bind_param("issi", $doctor_id, $appointment_date, $appointment_time, $appointment_id);
+    $check_stmt->execute();
+    $check_result = $check_stmt->get_result();
+    
+    if ($check_result->num_rows > 0) {
+        $message = "Error: This time slot is already booked! Please choose a different time.";
         $message_type = "error";
+    } else {
+        // Update appointment - FIXED: using appointment_id in WHERE clause
+        $update_sql = "UPDATE appointment 
+                       SET doctor_id = ?, appointment_date = ?, appointment_time = ?, 
+                           appointment_type = ?, status = ? 
+                       WHERE appointment_id = ?"; // CHANGED: id to appointment_id
+        $update_stmt = $conn->prepare($update_sql);
+        $update_stmt->bind_param("issssi", $doctor_id, $appointment_date, $appointment_time, 
+                                $appointment_type, $status, $appointment_id);
+        
+        if ($update_stmt->execute()) {
+            $message = "Appointment updated successfully!";
+            $message_type = "success";
+            // Refresh appointment data
+            $appointment['doctor_id'] = $doctor_id;
+            $appointment['appointment_date'] = $appointment_date;
+            $appointment['appointment_time'] = $appointment_time;
+            $appointment['appointment_type'] = $appointment_type;
+            $appointment['status'] = $status;
+        } else {
+            $message = "Error updating appointment: " . $conn->error;
+            $message_type = "error";
+        }
     }
 }
 ?>
@@ -81,6 +159,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       align-items: center;
       gap: 10px;
       cursor: pointer;
+    }
+
+    .user-role-badge {
+      display: inline-block;
+      background: #0072CE;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      margin-left: 10px;
+      text-transform: capitalize;
     }
 
     .container {
@@ -138,6 +227,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       text-align: center;
     }
 
+    .info-note {
+      background: #e8f4fc;
+      border-left: 4px solid #0072CE;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+
     .form-group {
       margin-bottom: 1rem;
     }
@@ -173,6 +271,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       background-color: #005fa3;
     }
 
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+      margin-top: 0.5rem;
+      width: 100%;
+    }
+
+    .btn-secondary:hover {
+      background-color: #545b62;
+    }
+
     .message {
       padding: 15px;
       margin: 20px 0;
@@ -191,22 +308,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       background-color: #f8d7da;
       color: #721c24;
       border: 1px solid #f5c6cb;
-    }
-
-    .btn-action {
-      background-color: #0072CE;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-block;
-      margin: 10px;
-    }
-
-    .btn-action:hover {
-      background-color: #005fa3;
     }
 
     footer {
@@ -266,6 +367,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       margin-bottom: 4px;
       line-height: 1.4;
     }
+
+    .appointment-info {
+      background: #f8f9fa;
+      padding: 1rem;
+      border-radius: 5px;
+      margin-bottom: 1rem;
+    }
+
+    .appointment-info p {
+      margin: 0.5rem 0;
+    }
   </style>
 </head>
 <body>
@@ -278,7 +390,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <div class="profile-section" onclick="window.location.href='../profile.php'">
       <i class="fas fa-user-circle fa-2x"></i>
-      <span>Welcome, Patient</span>
+      <span>Welcome, <?php echo htmlspecialchars($full_name); ?></span>
+      <span class="user-role-badge"><?php echo htmlspecialchars($user_type); ?></span>
     </div>
   </header>
 
@@ -288,22 +401,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <i class="fas fa-home"></i>
         <span>Dashboard</span>
       </div>
-      <div class="nav-item" onclick="window.location.href='../update-profile.html'">
-        <i class="fas fa-user-edit"></i>
-        <span>Update Profile</span>
-      </div>
-      <div class="nav-item" onclick="window.location.href='appointment_form.html'">
+      
+      <?php if ($user_type === 'patient'): ?>
+      <div class="nav-item" onclick="window.location.href='appointment_form.php'">
         <i class="fas fa-calendar-check"></i>
         <span>Book Appointment</span>
       </div>
-      <div class="nav-item" onclick="window.location.href='list_appointments.php'">
+      <?php endif; ?>
+      
+      <div class="nav-item active" onclick="window.location.href='list_appointments.php'">
         <i class="fas fa-list"></i>
         <span>View Appointments</span>
       </div>
-      <div class="nav-item" onclick="window.location.href='../availability/availability_form.html'">
-        <i class="fas fa-clock"></i>
-        <span>Manage Availability</span>
+      
+      <?php if ($user_type === 'patient'): ?>
+      <div class="nav-item" onclick="window.location.href='../availability/list_availability.php'">
+        <i class="fas fa-eye"></i>
+        <span>View Available Slots</span>
       </div>
+      <?php endif; ?>
+      
       <div class="nav-item" onclick="logout()">
         <i class="fas fa-sign-out-alt"></i>
         <span>Logout</span>
@@ -311,71 +428,70 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </aside>
 
     <main class="main-content">
-      <?php if (isset($message)): ?>
-        <div class="message <?php echo $message_type; ?>">
-          <?php echo $message; ?>
-          <?php if ($message_type == 'success'): ?>
-            <script>
-              setTimeout(function() {
-                window.location.href = 'list_appointments.php';
-              }, 1500);
-            </script>
-          <?php endif; ?>
+      <div class="form-container">
+        <h2>Edit Appointment</h2>
+        
+        <div class="info-note">
+          <strong>Editing Appointment #<?php echo $appointment_id; ?></strong><br>
+          Patient: <?php echo htmlspecialchars($appointment['patient_name']); ?>
         </div>
-      <?php endif; ?>
 
-      <?php if (isset($appointment)): ?>
-        <div class="form-container">
-          <h2>Edit Appointment</h2>
-          <form method="POST">
-            <input type="hidden" name="appointment_id" value="<?php echo $appointment['appointment_id']; ?>">
-            
-            <div class="form-group">
-              <label for="patient_id">Patient ID</label>
-              <input type="number" id="patient_id" name="patient_id" value="<?php echo $appointment['patient_id']; ?>" required>
-            </div>
-
-            <div class="form-group">
-              <label for="doctor_id">Doctor ID</label>
-              <input type="number" id="doctor_id" name="doctor_id" value="<?php echo $appointment['doctor_id']; ?>" required>
-            </div>
-
-            <div class="form-group">
-              <label for="appointment_date">Date</label>
-              <input type="date" id="appointment_date" name="appointment_date" value="<?php echo $appointment['appointment_date']; ?>" required>
-            </div>
-
-            <div class="form-group">
-              <label for="appointment_time">Time</label>
-              <input type="time" id="appointment_time" name="appointment_time" value="<?php echo $appointment['appointment_time']; ?>" required>
-            </div>
-
-            <div class="form-group">
-              <label for="appointment_type">Appointment Type</label>
-              <select id="appointment_type" name="appointment_type" required>
-                <option value="General" <?php if($appointment['appointment_type'] == 'General') echo 'selected'; ?>>General Consultation</option>
-                <option value="Follow-up" <?php if($appointment['appointment_type'] == 'Follow-up') echo 'selected'; ?>>Follow-up Visit</option>
-                <option value="Emergency" <?php if($appointment['appointment_type'] == 'Emergency') echo 'selected'; ?>>Emergency</option>
-              </select>
-            </div>
-
-            <button type="submit" class="btn-primary">Update Appointment</button>
-          </form>
-          
-          <div style="margin-top: 20px; text-align: center;">
-            <a href="list_appointments.php" class="btn-action">Back to Appointments</a>
+        <?php if ($message): ?>
+          <div class="message <?php echo $message_type; ?>">
+            <?php echo $message; ?>
           </div>
-        </div>
-      <?php else: ?>
-        <div class="form-container">
-          <div class="message error">
-            Appointment not found or invalid ID.
+        <?php endif; ?>
+
+        <form action="edit_appointment.php?id=<?php echo $appointment_id; ?>" method="POST">
+          <div class="form-group">
+            <label for="doctor_id">Doctor</label>
+            <select id="doctor_id" name="doctor_id" required>
+              <option value="">-- Select Doctor --</option>
+              <?php foreach ($doctors as $doc): ?>
+                <option value="<?php echo $doc['id']; ?>" 
+                  <?php echo ($appointment['doctor_id'] == $doc['id']) ? 'selected' : ''; ?>>
+                  <?php echo htmlspecialchars($doc['full_name']); ?>
+                </option>
+              <?php endforeach; ?>
+            </select>
           </div>
-          <div style="text-align: center; margin-top: 20px;">
-            <a href="list_appointments.php" class="btn-action">Back to Appointments</a>
+
+          <div class="form-group">
+            <label for="appointment_date">Appointment Date</label>
+            <input type="date" id="appointment_date" name="appointment_date" required 
+                   min="<?php echo date('Y-m-d'); ?>" 
+                   value="<?php echo htmlspecialchars($appointment['appointment_date']); ?>">
           </div>
-        </div>
-      <?php endif; ?>
+
+          <div class="form-group">
+            <label for="appointment_time">Appointment Time</label>
+            <input type="time" id="appointment_time" name="appointment_time" required
+                   value="<?php echo htmlspecialchars($appointment['appointment_time']); ?>">
+          </div>
+
+          <div class="form-group">
+            <label for="appointment_type">Appointment Type</label>
+            <select id="appointment_type" name="appointment_type" required>
+              <option value="General" <?php echo ($appointment['appointment_type'] == 'General') ? 'selected' : ''; ?>>General Consultation</option>
+              <option value="Follow-up" <?php echo ($appointment['appointment_type'] == 'Follow-up') ? 'selected' : ''; ?>>Follow-up Visit</option>
+              <option value="Emergency" <?php echo ($appointment['appointment_type'] == 'Emergency') ? 'selected' : ''; ?>>Emergency</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="status">Status</label>
+            <select id="status" name="status" required>
+              <option value="Scheduled" <?php echo ($appointment['status'] == 'Scheduled') ? 'selected' : ''; ?>>Scheduled</option>
+              <option value="Completed" <?php echo ($appointment['status'] == 'Completed') ? 'selected' : ''; ?>>Completed</option>
+              <option value="Cancelled" <?php echo ($appointment['status'] == 'Cancelled') ? 'selected' : ''; ?>>Cancelled</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn-primary">Update Appointment</button>
+        </form>
+
+        <a href="list_appointments.php" class="btn-secondary">Back to Appointments</a>
+      </div>
     </main>
   </div>
 
@@ -421,6 +537,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         window.location.href = '../login.html';
       }
     }
+
+    // Set minimum date to today
+    document.getElementById('appointment_date').min = new Date().toISOString().split('T')[0];
   </script>
 
 </body>

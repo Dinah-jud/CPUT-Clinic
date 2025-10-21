@@ -335,7 +335,7 @@ $result = $conn->query($sql);
       </div>
       
       <?php if ($user_type === 'admin' || $user_type === 'doctor'): ?>
-      <div class="nav-item" onclick="window.location.href='../availability/availability_form.html'">
+      <div class="nav-item" onclick="window.location.href='../availability/availability_form.php'">
         <i class="fas fa-clock"></i>
         <span>Manage Availability</span>
       </div>
